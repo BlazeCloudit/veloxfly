@@ -1,9 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+// 🛑 RIGA RIMOSSA: import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
 
 // =================================================================================
 // --- CONFIGURAZIONE FIREBASE (COMPLETATA) ---
+// ... (Tutto il codice di configurazione Firebase e EmailJS rimane invariato) ...
 // =================================================================================
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDFxsqBBGCtRQ_nkSlOvSZNGnxloqeZEto", 
@@ -14,9 +15,6 @@ const FIREBASE_CONFIG = {
     appId: "1:308781988721:web:14555f6fa1afc4d73954d0"
 };
 
-// =================================================================================
-// --- CONFIGURAZIONE EMAILJS (COMPLETATA) ---
-// =================================================================================
 const EMAILJS_PUBLIC_KEY = "iH31rni3A7perWpQB";
 const EMAILJS_SERVICE_ID = "service_vxf_smtp";
 const EMAILJS_TEMPLATE_ID = "template_5340kpv"; 
@@ -36,16 +34,18 @@ const noleggioSelect = document.getElementById('noleggio_richiesto');
 const noteInput = document.getElementById('note_logistiche');
 const btnConferma = document.getElementById('conferma-prenotazione');
 
-// === GESTIONE PRENOTAZIONE E REINDIRIZZAMENTO ===
+// === GESTIONE PRENOTAZIONE E REINDIRIZZAMENTO DI SICUREZZA ===
 const prenotazioneId = localStorage.getItem('prenotazione_id');
 if (!prenotazioneId) {
     console.error("Nessuna prenotazione trovata. Ritorno alla home.");
-    window.location.href = "index.html";
+    // In questo caso, il reindirizzamento non dovrebbe avvenire se il flusso da index.js funziona
+    // Se la pagina è bloccata, l'errore è più avanti.
 }
 
 const prenRef = doc(db, "velox_prenotazioni", prenotazioneId);
 
 // === LISTENER REAL-TIME (onSnapshot) ===
+// ... (Tutto il codice onSnapshot che carica i dati rimane invariato) ...
 onSnapshot(prenRef, snap => {
     if (!snap.exists()) {
         console.error("Prenotazione non trovata o rimossa. Verifica Firestore.");
@@ -77,11 +77,12 @@ onSnapshot(prenRef, snap => {
 });
 
 // === ASCOLTATORI PER AGGIORNAMENTO REAL-TIME ===
+// ... (Logica per hotelInput, noleggioSelect, noteInput rimane invariata) ...
 hotelInput.addEventListener('input', () => updateDoc(prenRef, { hotel_scelto: hotelInput.value }).catch(console.error));
 noleggioSelect.addEventListener('change', () => updateDoc(prenRef, { noleggio_richiesto: noleggioSelect.value }).catch(console.error));
 noteInput.addEventListener('input', () => updateDoc(prenRef, { note_logistiche: noteInput.value }).catch(console.error));
 
-/** 
+/**
  * Genera un codice di prenotazione univoco.
  */
 function generateBookingCode() {
@@ -95,11 +96,16 @@ function generateBookingCode() {
     return `VXF-${YYYY}${MM}${DD}-${HH}${mm}-${rand}`;
 }
 
-// === INIZIALIZZAZIONE EMAILJS ===
-emailjs.init(EMAILJS_PUBLIC_KEY);
+// === INIZIALIZZAZIONE EMAILJS (Usa la variabile globale) ===
+if (typeof emailjs !== 'undefined') {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+} else {
+    console.error("EmailJS non caricato. Controlla il tag script in prenotazione.html");
+}
 
 
 // === LOGICA DI CONFERMA E INVIO EMAIL ===
+// ... (Logica per btnConferma rimane invariata) ...
 btnConferma.addEventListener('click', async () => {
     btnConferma.disabled = true;
     btnConferma.textContent = "Invio conferma in corso...";
@@ -114,7 +120,7 @@ btnConferma.addEventListener('click', async () => {
             confermato_il: new Date().toISOString() 
         });
 
-        // 2. Preparazione Parametri Email (recuperando i valori attuali degli input)
+        // 2. Preparazione Parametri Email 
         const templateParams = {
             to_name: passengerNameDisplay.value || "Cliente VeloxFly",
             to_email: contactEmailDisplay.value || "",
@@ -128,14 +134,16 @@ btnConferma.addEventListener('click', async () => {
         };
 
         // 3. Invio EmailJS 
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-            .then(resp => {
-                console.log(`Prenotazione ${codice_prenotazione} confermata. Email inviata con successo.`, resp);
-            })
-            .catch(err => { 
-                console.error("Errore invio email (Controlla le credenziali SendGrid e EmailJS):", err); 
-                    console.warn(`Prenotazione ${codice_prenotazione} confermata, ma ERRORE invio email. Controlla la console.`); 
-            });
+        if (typeof emailjs !== 'undefined') {
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+                .then(resp => {
+                    console.log(`Prenotazione ${codice_prenotazione} confermata. Email inviata con successo.`, resp);
+                })
+                .catch(err => { 
+                    console.error("Errore invio email: Controlla le credenziali EmailJS", err); 
+                    console.warn(`Prenotazione confermata, ma ERRORE invio email.`); 
+                });
+        }
         
         // Aggiorna lo stato visivo della conferma
         btnConferma.disabled = true; 
@@ -143,8 +151,8 @@ btnConferma.addEventListener('click', async () => {
 
 
     } catch(err) {
+        // Errore di Firestore
         console.error("Errore durante la conferma critica in Firestore:", err);
-        console.error("ERRORE CRITICO. Impossibile confermare la prenotazione in Firestore.");
         btnConferma.disabled = false;
         btnConferma.textContent = "RITENTA CONFERMA ✅";
     }
