@@ -1,0 +1,44 @@
+:root {
+  --vxf-blue: #0b5ed7;
+  --vxf-dark: #042a6b;
+  --vxf-soft: #f4f7fb;
+  --radius: 0.6rem;
+}
+
+body {
+  background: var(--vxf-soft);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #1b1f23;
+}
+
+.navbar-brand {
+  font-size: 1.4rem;
+}
+
+.container main {
+  max-width: 980px;
+}
+
+form, .card {
+  border-radius: var(--radius);
+}
+
+.btn-primary {
+  background-color: var(--vxf-blue);
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--vxf-dark);
+}
+
+input, select, textarea {
+  border-radius: 0.45rem !important;
+  border: 1px solid #dfe7f5;
+  box-shadow: none !important;
+}
+
+footer small {
+  display: block;
+  margin-top: 2rem;
+}
