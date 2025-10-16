@@ -1,21 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-// === CONFIGURAZIONE FIREBASE ===
-const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyDFxsqBBGCtRQ_nkSlOvSZNGnxloqeZEto", 
-    authDomain: "veloxfly-logistica.firebaseapp.com",
-    projectId: "veloxfly-logistica",
-    storageBucket: "veloxfly-logistica.firebasestorage.app",
-    messagingSenderId: "308781988721", 
-    appId: "1:308781988721:web:14555f6fa1afc4d73954d0"
-};
-
-const app = initializeApp(FIREBASE_CONFIG);
-const db = getFirestore(app);
-
-// === RIFERIMENTI UI (MATCHANO index.html) ===
-const formPrenotazione = document.getElementById('flight-form');
+// === RIFERIMENTI UI ===
+const formPrenotazione = document.getElementById('flight-form'); 
 const inputNome = document.getElementById('passenger_name');
 const inputEmail = document.getElementById('contact_email');
 const inputPartenza = document.getElementById('partenza');
@@ -23,12 +7,16 @@ const inputDestinazione = document.getElementById('destinazione');
 const inputData = document.getElementById('data');
 const rotteList = document.getElementById('rotte-list'); 
 
-// === LOGICA AGGIUNTA: POPOLAMENTO ROTTE ===
+// === POPOLAMENTO ROTTE ESTESO ===
 const rotteDisponibili = [
     "Milano Linate (LIN)", "Roma Fiumicino (FCO)", "Torino Caselle (TRN)", 
     "Venezia Tessera (VCE)", "Napoli Capodichino (NAP)", "Bari Palese (BRI)", 
     "Palermo Falcone Borsellino (PMO)", "Catania Fontanarossa (CTA)", 
-    "Reggio Calabria (REG)", "Genova Sestri (GOA)"
+    "Reggio Calabria (REG)", "Genova Sestri (GOA)", "Bologna Marconi (BLQ)", 
+    "Firenze Peretola (FLR)", "Pisa Galileo Galilei (PSA)", "Verona Villafranca (VRN)",
+    "Olbia Costa Smeralda (OLB)", "Cagliari Elmas (CAG)", "Alghero Fertilia (AHO)", 
+    "Brindisi Papola Casale (BDS)", "Lamezia Terme (SUF)", "Pescara Abruzzo (PSR)",
+    "Ancona Falconara (AOI)", "Trieste Ronchi dei Legionari (TRS)", "Rimini Miramare (RMI)"
 ];
 
 if (rotteList) {
@@ -39,56 +27,39 @@ if (rotteList) {
     });
 }
 
-// === LOGICA DI SALVATAGGIO E REINDIRIZZAMENTO ===
+// === FUNZIONE ID LOCALE (Genera una chiave unica per la sessione) ===
+function generateLocalId() {
+    const now = new Date();
+    const ms = String(now.getTime()).slice(-6); 
+    return `LOCAL-${ms}`;
+}
+
+// === LOGICA DI SALVATAGGIO LOCALE E REINDIRIZZAMENTO ===
 if (formPrenotazione) {
-    formPrenotazione.addEventListener('submit', async (e) => {
+    formPrenotazione.addEventListener('submit', (e) => {
         e.preventDefault(); 
         
         const btnPrenota = formPrenotazione.querySelector('button[type="submit"]');
-        if (btnPrenota) {
-            btnPrenota.disabled = true;
-            btnPrenota.textContent = "Prenotazione in corso...";
-        }
+        btnPrenota.disabled = true;
+        btnPrenota.textContent = "Simulazione Salvataggio... OK";
 
-        // --- CONTROLLO DI VALIDAZIONE BASE ---
-        if (!inputPartenza.value || !inputDestinazione.value || !inputNome.value || !inputEmail.value || !inputData.value) {
-            alert("Per favore, compila tutti i campi obbligatori.");
-            if (btnPrenota) {
-                btnPrenota.disabled = false;
-                btnPrenota.textContent = "Crea Prenotazione (DRAFT)";
-            }
-            return;
-        }
-        // ------------------------------------
-
-        const nuovaPrenotazione = {
+        // 1. Dati iniziali da salvare
+        const datiSimulati = {
             passenger_name: inputNome.value,
             contact_email: inputEmail.value,
             partenza: inputPartenza.value,
             destinazione: inputDestinazione.value,
             data: inputData.value,
             stato: "PENDING",
-            hotel_scelto: "",
-            noleggio_richiesto: "",
-            note_logistiche: "",
-            codice_prenotazione: "N/A"
+            codice_prenotazione: "" // Sarà riempito nel dashboard.js
         };
 
-        try {
-            const docRef = await addDoc(collection(db, "velox_prenotazioni"), nuovaPrenotazione);
-            localStorage.setItem('prenotazione_id', docRef.id);
-            
-            // Reindirizzamento critico
-            window.location.href = "prenotazione.html"; 
-
-        } catch(err) {
-            console.error("ERRORE CRITICO SALVATAGGIO FIRESTORE:", err);
-            alert("Errore grave: Impossibile salvare la prenotazione. Controlla la console.");
-            
-            if (btnPrenota) {
-                btnPrenota.disabled = false;
-                btnPrenota.textContent = "Crea Prenotazione (DRAFT)";
-            }
-        }
+        // 2. Salva un ID e i dati simulati nella memoria del browser
+        const localId = generateLocalId();
+        localStorage.setItem('prenotazione_id', localId);
+        localStorage.setItem(`prenotazione_${localId}`, JSON.stringify(datiSimulati));
+        
+        // 3. Reindirizzamento garantito
+        window.location.href = "prenotazione.html"; 
     });
 }
