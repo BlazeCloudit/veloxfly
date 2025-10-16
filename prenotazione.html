@@ -98,9 +98,37 @@
       <button id="conferma-prenotazione" class="btn btn-success w-100 mt-4">Conferma Finale e Invia Email</button>
     </div>
   </main>
+  
+  <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="authModalLabel">Accesso / Registrazione VeloxFly™</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Benvenuto! Gestisci le tue prenotazioni e il tuo profilo.</p>
+          <div class="mb-3">
+            <label for="modalUsername" class="form-label">Nome Utente/Email</label>
+            <input type="text" class="form-control" id="modalUsername" placeholder="Inserisci il tuo nome utente" required>
+          </div>
+          <div class="mb-3">
+            <label for="modalPassword" class="form-label">Password</label>
+            <input type="password" class="form-control" id="modalPassword" value="********" readonly>
+            <div class="form-text text-danger">ATTENZIONE: La gestione reale di password e 2FA richiede un server sicuro (backend). Qui gestiamo solo la sessione.</div>
+          </div>
+          <div class="d-grid gap-2">
+              <button id="modalLoginBtn" type="button" class="btn btn-success">Accedi</button>
+              <button id="modalRegisterBtn" type="button" class="btn btn-outline-primary">Registrati (Crea Sessione)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="dashboard.js"></script>
-  <script type="module" src="index.js"></script>
+  <script src="index.js"></script>
 </body>
 </html>

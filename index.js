@@ -1,4 +1,4 @@
-// === RIFERIMENTI UI ===
+// === RIFERIMENTI UI PRINCIPALI ===
 const formPrenotazione = document.getElementById('flight-form'); 
 const inputNome = document.getElementById('passenger_name');
 const inputEmail = document.getElementById('contact_email');
@@ -7,11 +7,19 @@ const inputDestinazione = document.getElementById('destinazione');
 const inputData = document.getElementById('data');
 const rotteList = document.getElementById('rotte-list'); 
 
-// === RIFERIMENTI UI AUTENTICAZIONE (Nuovi) ===
+// === RIFERIMENTI UI AUTENTICAZIONE (Navbar) ===
 const loginBtn = document.getElementById('login-button');
 const logoutBtn = document.getElementById('logout-button');
 const userInfo = document.getElementById('user-info');
 const usernameDisplay = document.getElementById('username-display');
+
+// === RIFERIMENTI MODAL DI ACCESSO ===
+const authModalEl = document.getElementById('authModal');
+const authModal = authModalEl ? new bootstrap.Modal(authModalEl) : null;
+const modalUsernameInput = document.getElementById('modalUsername');
+const modalLoginBtn = document.getElementById('modalLoginBtn');
+const modalRegisterBtn = document.getElementById('modalRegisterBtn');
+
 
 // === POPOLAMENTO ROTTE ESTESO ===
 const rotteDisponibili = [
@@ -33,7 +41,7 @@ if (rotteList) {
     });
 }
 
-// === FUNZIONE ID LOCALE (Genera una chiave unica per la sessione) ===
+// === FUNZIONE ID LOCALE ===
 function generateLocalId() {
     const now = new Date();
     const ms = String(now.getTime()).slice(-6); 
@@ -47,57 +55,76 @@ if (formPrenotazione) {
         
         const btnPrenota = formPrenotazione.querySelector('button[type="submit"]');
         btnPrenota.disabled = true;
-        btnPrenota.textContent = "Simulazione Salvataggio... OK";
+        btnPrenota.textContent = "Salvataggio in corso...";
 
-        // 1. Dati iniziali da salvare
         const datiSimulati = {
             passenger_name: inputNome.value,
-            contact_email: inputEmail.value,
+            contact_email: inputEmail.value, // <--- Dato cruciale per EmailJS
             partenza: inputPartenza.value,
             destinazione: inputDestinazione.value,
             data: inputData.value,
             stato: "PENDING",
-            codice_prenotazione: "" // Sarà riempito nel dashboard.js
+            codice_prenotazione: "" 
         };
 
-        // 2. Salva un ID e i dati simulati nella memoria del browser
+        // CONTROLLO DI ROBUSTEZZA DELL'EMAIL (FIX 422)
+        if (!datiSimulati.contact_email || datiSimulati.contact_email.indexOf('@') === -1) {
+            alert("ATTENZIONE: Inserisci un'email di contatto valida. Operazione annullata.");
+            btnPrenota.disabled = false;
+            btnPrenota.textContent = "Crea Prenotazione";
+            return;
+        }
+
+        // Salva ID e Dati
         const localId = generateLocalId();
         localStorage.setItem('prenotazione_id', localId);
         localStorage.setItem(`prenotazione_${localId}`, JSON.stringify(datiSimulati));
         
-        // 3. Reindirizzamento garantito
+        // Reindirizzamento
         window.location.href = "prenotazione.html"; 
     });
 }
 
-// === LOGICA DI AUTENTICAZIONE SEMPLIFICATA (Local Storage) ===
+// === LOGICA DI AUTENTICAZIONE (Gestione Sessione Professionale) ===
 function checkAuthStatus() {
     const loggedInUser = localStorage.getItem('current_user');
     if (loggedInUser) {
-        // Utente loggato
         if (loginBtn) loginBtn.style.display = 'none';
-        if (userInfo) userInfo.style.display = 'flex'; // Usiamo flex per allineamento
+        if (userInfo) userInfo.style.display = 'flex'; 
         if (usernameDisplay) usernameDisplay.textContent = loggedInUser;
     } else {
-        // Utente non loggato
         if (loginBtn) loginBtn.style.display = 'block';
         if (userInfo) userInfo.style.display = 'none';
     }
 }
 
-// SIMULAZIONE LOGIN/REGISTRAZIONE
-if (loginBtn) {
+// Logica per il pulsante del Modal
+function handleAuth(e) {
+    e.preventDefault();
+    const username = modalUsernameInput.value.trim();
+    if (username) {
+        localStorage.setItem('current_user', username);
+        checkAuthStatus();
+        if (authModal) authModal.hide();
+        modalUsernameInput.value = ''; // Pulisci il campo
+    } else {
+        alert("Inserisci un nome utente per accedere alla tua sessione.");
+    }
+}
+
+// Listener: Mostra il Modal
+if (loginBtn && authModal) {
     loginBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        const username = prompt("Simulazione: Inserisci il tuo nome utente per accedere:");
-        if (username) {
-            localStorage.setItem('current_user', username);
-            checkAuthStatus();
-        }
+        authModal.show();
     });
 }
 
-// FUNZIONE LOGOUT
+// Listener: Azioni nel Modal
+if (modalLoginBtn) modalLoginBtn.addEventListener('click', handleAuth);
+if (modalRegisterBtn) modalRegisterBtn.addEventListener('click', handleAuth);
+
+// Listener: Logout
 if (logoutBtn) {
     logoutBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -106,5 +133,5 @@ if (logoutBtn) {
     });
 }
 
-// Esegui al caricamento della pagina (Importante per tutte le pagine che lo includono)
-checkAuthStatus();  
+// Esegui al caricamento della pagina
+checkAuthStatus();
