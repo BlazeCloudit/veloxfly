@@ -81,7 +81,7 @@ hotelInput.addEventListener('input', () => updateDoc(prenRef, { hotel_scelto: ho
 noleggioSelect.addEventListener('change', () => updateDoc(prenRef, { noleggio_richiesto: noleggioSelect.value }).catch(console.error));
 noteInput.addEventListener('input', () => updateDoc(prenRef, { note_logistiche: noteInput.value }).catch(console.error));
 
-/**
+/** 
  * Genera un codice di prenotazione univoco.
  */
 function generateBookingCode() {
@@ -134,7 +134,7 @@ btnConferma.addEventListener('click', async () => {
             })
             .catch(err => { 
                 console.error("Errore invio email (Controlla le credenziali SendGrid e EmailJS):", err); 
-                console.warn(`Prenotazione ${codice_prenotazione} confermata, ma ERRORE invio email. Controlla la console.`); 
+                    console.warn(`Prenotazione ${codice_prenotazione} confermata, ma ERRORE invio email. Controlla la console.`); 
             });
         
         // Aggiorna lo stato visivo della conferma
