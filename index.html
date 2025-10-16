@@ -13,22 +13,76 @@
     .footer-links h5 { border-bottom: 2px solid #ffcc00; padding-bottom: 5px; }
     .nav-tabs .nav-link { color: #0055a4; font-weight: bold; }
     .nav-tabs .nav-link.active { background-color: #0055a4; color: white; border-color: #0055a4; }
+
+    /* DARK MODE STYLES */
+    .dark-mode { background-color: #1a1a1a !important; color: #f0f0f0 !important; }
+    .dark-mode .bg-light-blue { background-color: #333 !important; }
+    .dark-mode .navbar-dark.bg-primary { background-color: #003366 !important; }
+    .dark-mode .card, .dark-mode .form-control, .dark-mode .modal-content { background-color: #2b2b2b !important; color: #f0f0f0 !important; border-color: #444; }
+    .dark-mode .text-primary { color: #ffcc00 !important; }
+    .dark-mode a { color: #ffcc00; }
+    .dark-mode .nav-tabs .nav-link.active { background-color: #ffcc00; color: black; border-color: #ffcc00; }
+    
+    /* Stile Animazione Caricamento Iniziale (MENU ANIMAZIONE) */
+    .loading-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #0055a4; /* Colore Primario VeloxFly */
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1050;
+        transition: opacity 0.5s ease-out;
+    }
+    .spinner-velox {
+        width: 80px;
+        height: 80px;
+        border: 10px solid #f3f3f3; 
+        border-top: 10px solid #ffcc00; /* Giallo Accento */
+        border-radius: 50%;
+        animation: spin 1.5s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
-<body>
+<body id="body-main">
+
+  <div id="loading-overlay" class="loading-overlay">
+      <div class="spinner-velox"></div>
+      <h3 class="mt-4">VeloxFly™ - Caricamento Hub Esecutivo...</h3>
+  </div>
+
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
     <div class="container">
       <a class="navbar-brand fw-bold" href="index.html">VeloxFly™</a>
       <div class="ms-auto d-flex align-items-center">
-        <a href="#mappa-rotte" class="nav-link text-white me-3 d-none d-lg-block">Planear</a>
-        <a href="#" id="my-reservations-link" class="nav-link text-white me-3">Mis Reservas</a>
+        
+        <div class="dropdown me-3">
+            <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span id="current-lang-display">IT</span> / <i class="fas fa-sun" id="theme-icon"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><button class="dropdown-item" id="toggle-theme"><i class="fas fa-moon me-2"></i> Modalità Scura</button></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><button class="dropdown-item lang-switch" data-lang="it">Italiano</button></li>
+                <li><button class="dropdown-item lang-switch" data-lang="en">English</button></li>
+            </ul>
+        </div>
+        
+        <a href="#mappa-rotte" class="nav-link text-white me-3 d-none d-lg-block" data-lang-key="Plan">Pianifica</a>
+        <a href="dashboard.html" id="my-reservations-link" class="nav-link text-white me-3" data-lang-key="MyReservations">Le Mie Prenotazioni</a>
         
         <div id="auth-controls" class="d-flex">
           <div id="user-info" style="display:none;" class="text-white me-3 d-flex align-items-center">
             <span id="username-display" class="fw-bold me-2"></span>
-            <a href="#" id="logout-button" class="btn btn-sm btn-outline-light">Logout</a>
+            <a href="profilo.html" id="profile-link" class="btn btn-sm btn-outline-light me-2" data-lang-key="Profile">Profilo</a> <a href="#" id="logout-button" class="btn btn-sm btn-outline-light" data-lang-key="Logout">Logout</a>
           </div>
-          <a href="#" id="login-button" class="btn btn-sm btn-outline-light">Inicia Sesión</a>
+          <a href="#" id="login-button" class="btn btn-sm btn-outline-light" data-lang-key="Login">Accedi</a>
         </div>
       </div>
     </div>
@@ -37,51 +91,69 @@
   <main class="container-fluid p-0">
     <section class="p-5 bg-light-blue text-center">
       <div class="container">
-        <h1 class="mb-4 text-primary">Vola con VeloxFly™ - Prenotazione Esecutiva</h1>
+        <h1 class="mb-4 text-primary" data-lang-key="H1Title">Vola con VeloxFly™ - Prenotazione Esecutiva</h1>
+        
         <ul class="nav nav-tabs justify-content-center mb-4" id="mainTab" role="tablist">
-          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#vuelos" type="button"><i class="fas fa-plane"></i> VUELOS</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#coches" type="button"><i class="fas fa-car"></i> ALQUILER DE COCHES</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#hoteles" type="button"><i class="fas fa-hotel"></i> HOTELES</button></li>
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#vuelos" type="button" data-lang-key="TabFlights"><i class="fas fa-plane"></i> VOLI</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#coches" type="button" data-lang-key="TabCars"><i class="fas fa-car"></i> NOLEGGIO AUTO</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#hoteles" type="button" data-lang-key="TabHotels"><i class="fas fa-hotel"></i> HOTEL</button></li>
         </ul>
 
         <div class="tab-content" id="mainTabContent">
           <div class="tab-pane fade show active" id="vuelos" role="tabpanel">
             <form id="flight-form" class="p-4 bg-white rounded shadow-lg text-start">
               <div class="row g-3">
-                <div class="col-md-6"><label class="form-label">Nome Passeggero</label><input type="text" id="passenger_name" class="form-control" placeholder="Mario Rossi" required></div>
-                <div class="col-md-6"><label class="form-label">Email di contatto (Obbligatoria)</label><input type="email" id="contact_email" class="form-control" placeholder="mario@example.com" required></div>
-                <div class="col-md-4"><label class="form-label">Partenza</label><input type="text" id="partenza" class="form-control" list="rotte-list" placeholder="Milano Linate" required><datalist id="rotte-list"></datalist></div>
-                <div class="col-md-4"><label class="form-label">Destinazione</label><input type="text" id="destinazione" class="form-control" list="rotte-list" placeholder="Roma Fiumicino" required></div>
-                <div class="col-md-4"><label class="form-label">Data del volo</label><input type="date" id="data" class="form-control" required></div>
+                <div class="col-md-6"><label class="form-label" data-lang-key="PassengerName">Nome Passeggero</label><input type="text" id="passenger_name" class="form-control" placeholder="Mario Rossi" required></div>
+                <div class="col-md-6"><label class="form-label" data-lang-key="ContactEmail">Email di contatto (Obbligatoria)</label><input type="email" id="contact_email" class="form-control" placeholder="mario@example.com" required></div>
+                <div class="col-md-4"><label class="form-label" data-lang-key="Departure">Partenza</label><input type="text" id="partenza" class="form-control" list="rotte-list" placeholder="Milano Linate" required><datalist id="rotte-list"></datalist></div>
+                <div class="col-md-4"><label class="form-label" data-lang-key="Destination">Destinazione</label><input type="text" id="destinazione" class="form-control" list="rotte-list" placeholder="Roma Fiumicino" required></div>
+                <div class="col-md-4"><label class="form-label" data-lang-key="FlightDate">Data del volo</label><input type="date" id="data" class="form-control" required></div>
               </div>
               <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary btn-lg">Crea Prenotazione</button>
+                <button type="submit" class="btn btn-primary btn-lg" data-lang-key="CreateBooking">Crea Prenotazione</button>
               </div>
             </form>
           </div>
-          <div class="tab-pane fade p-5" id="coches" role="tabpanel">Funzionalità Car Rental (Mockup Realistico).</div>
-          <div class="tab-pane fade p-5" id="hoteles" role="tabpanel">Funzionalità Hotel (Mockup Realistico).</div>
+          <div class="tab-pane fade p-5" id="coches" role="tabpanel" data-lang-key="CarsMockup">Funzionalità Noleggio Auto (Mockup Realistico).</div>
+          <div class="tab-pane fade p-5" id="hoteles" role="tabpanel" data-lang-key="HotelsMockup">Funzionalità Hotel (Mockup Realistico).</div>
         </div>
       </div>
     </section>
 
     <section class="container my-5">
-      <div class="alert alert-danger text-center">
-        <i class="fas fa-exclamation-triangle"></i> **IMPORTANTE:** Ultime aggiornamenti di viaggio e localizzazioni per test C-19. <a href="#" class="alert-link">Leggi di più</a>
-      </div>
+        <h2 class="text-primary mb-4" data-lang-key="NewLocationsTitle">Le Nostre Nuove Posizioni Esecutive e Staff Migliorato</h2>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card p-3 shadow-sm">
+                    <h5 class="card-title text-success" data-lang-key="StaffLoginTitle"><i class="fas fa-user-shield me-2"></i> Area Staff Veloce (Login Mock)</h5>
+                    <p data-lang-key="StaffLoginDesc">Accesso diretto per l'equipaggio e il personale logistico ai sistemi di decollo **Zero Fastidi**.</p>
+                    <button class="btn btn-outline-success w-100" data-lang-key="StaffLoginBtn">Accedi Staff</button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3 shadow-sm">
+                    <h5 class="card-title text-primary" data-lang-key="LocationsHubTitle"><i class="fas fa-map-marker-alt me-2"></i> Nuovi Hub Esecutivi</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="fas fa-check text-warning me-2"></i> <span data-lang-key="Location1">Dubai Al Maktoum (DWC)</span></li>
+                        <li><i class="fas fa-check text-warning me-2"></i> <span data-lang-key="Location2">Singapore Changi (SIN) - Terminal Esecutivo</span></li>
+                        <li><i class="fas fa-check text-warning me-2"></i> <span data-lang-key="Location3">New York JFK (JFK) - Punti Premium</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </section>
   </main>
   
   <footer class="bg-dark text-white pt-5">
     <div class="container">
       <div class="row footer-links">
-        <div class="col-md-3"><h5>Planear</h5><ul class="list-unstyled"><li><a href="#" class="text-white-50">Mappa di rotte</a></li><li><a href="#" class="text-white-50">Buscador de tarifas</a></li></ul></div>
-        <div class="col-md-3"><h5>Info Útil</h5><ul class="list-unstyled"><li><a href="#" class="text-white-50">Centro de ayuda</a></li><li><a href="#" class="text-white-50">Info volo</a></li><li><a href="#" class="text-white-50">Online check-in</a></li></ul></div>
-        <div class="col-md-3"><h5>Logística</h5><ul class="list-unstyled"><li><a href="#" class="text-white-50">Alquiler de coches</a></li><li><a href="#" class="text-white-50">Hotel</a></li></ul></div>
-        <div class="col-md-3"><h5>Conecta con nosotros</h5><ul class="list-unstyled"><li><a href="#" class="text-white-50"><i class="fab fa-facebook me-2"></i>Facebook</a></li><li><a href="#" class="text-white-50"><i class="fab fa-twitter me-2"></i>Twitter</a></li></ul></div>
+        <div class="col-md-3"><h5><span data-lang-key="PlanTitle">Pianifica</span></h5><ul class="list-unstyled"><li><a href="#" class="text-white-50" data-lang-key="RouteMap">Mappa di rotte</a></li><li><a href="#" class="text-white-50" data-lang-key="FareFinder">Buscador de tarifas</a></li></ul></div>
+        <div class="col-md-3"><h5><span data-lang-key="UsefulInfoTitle">Info Utili</span></h5><ul class="list-unstyled"><li><a href="#" class="text-white-50" data-lang-key="HelpCenter">Centro di aiuto</a></li><li><a href="#" class="text-white-50" data-lang-key="FlightInfo">Info volo</a></li><li><a href="#" class="text-white-50" data-lang-key="OnlineCheckin">Online check-in</a></li></ul></div>
+        <div class="col-md-3"><h5><span data-lang-key="LogisticsTitle">Logistica</span></h5><ul class="list-unstyled"><li><a href="#" class="text-white-50" data-lang-key="CarRental">Noleggio Auto</a></li><li><a href="#" class="text-white-50" data-lang-key="Hotel">Hotel</a></li></ul></div>
+        <div class="col-md-3"><h5><span data-lang-key="ConnectTitle">Connettiti con noi</span></h5><ul class="list-unstyled"><li><a href="#" class="text-white-50"><i class="fab fa-facebook me-2"></i>Facebook</a></li><li><a href="#" class="text-white-50"><i class="fab fa-twitter me-2"></i>Twitter</a></li></ul></div>
       </div>
       <div class="text-center py-3 border-top border-secondary mt-4">
-        <small class="text-white-50">2025 © VeloxFly™ DAC. Tutti i diritti riservati. <br> Termini e condizioni generali di trasporto | Politica di privacy | Preferenze di cookies</small>
+        <small class="text-white-50">2025 © VeloxFly™ DAC. <span data-lang-key="Rights">Tutti i diritti riservati.</span></small>
       </div>
     </div>
   </footer>
@@ -90,11 +162,24 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title" id="authModalLabel">Accesso / Registrazione VeloxFly™</h5>
+          <h5 class="modal-title" id="authModalLabel" data-lang-key="AuthModalTitle">Accesso / Registrazione VeloxFly™</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p>Gestisci le tue prenotazioni e il tuo profilo utente.</p>
-          <div class="mb-3"><label for="modalUsername" class="form-label">Nome Utente</label><input type="text" class="form-control" id="modalUsername" placeholder="Inserisci il tuo nome utente" required></div>
-          <div class="mb-3"><label for="modalPassword" class="form-label">Password</label><input type="password" class="form-control" id="modalPassword" value="********" readonly>
-            <div class="
+          <p data-lang-key="AuthModalDesc">Gestisci le tue prenotazioni e il tuo profilo utente.</p>
+          <div class="mb-3"><label for="modalUsername" class="form-label" data-lang-key="Username">Nome Utente</label><input type="text" class="form-control" id="modalUsername" placeholder="Inserisci il tuo nome utente" required></div>
+          <div class="mb-3"><label for="modalPassword" class="form-label" data-lang-key="Password">Password</label><input type="password" class="form-control" id="modalPassword" value="********" readonly>
+            <div class="form-text text-danger" data-lang-key="AuthWarning">ATTENZIONE: L'autenticazione è gestita tramite sessione locale (Local Storage), la base per un futuro 2FA.</div>
+          </div>
+          <div class="d-grid gap-2">
+              <button id="modalLoginBtn" type="button" class="btn btn-success" data-lang-key="ModalLogin">Accedi</button>
+              <button id="modalRegisterBtn" type="button" class="btn btn-outline-primary" data-lang-key="ModalRegister">Registrati (Crea Sessione)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="index.js"></script>
+</body>
+</html> 

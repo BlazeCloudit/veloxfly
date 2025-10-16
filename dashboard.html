@@ -3,152 +3,97 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VeloxFly™ - La Tua Carta d'Imbarco</title>
+  <title data-lang-key="DashboardTitle">VeloxFly™ - Hub Prenotazioni</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style-base.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    .bg-light-blue { background-color: #e6f1f8; }
-    /* Stile Boarding Pass */
-    .boarding-pass { 
-        max-width: 600px; 
-        margin: 20px auto; 
-        border-radius: 10px; 
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    }
-    .strip { background-color: #ffcc00; height: 10px; border-top-left-radius: 10px; border-top-right-radius: 10px; }
-    .flight-info-box { border-left: 3px solid #0055a4; padding-left: 15px; }
-    .qr-placeholder { background-color: #ccc; height: 100px; line-height: 100px; text-align: center; font-weight: bold; font-size: 1.2rem; }
-    /* Stile per Promessa Tecnologica */
-    .comfort-badge { 
-        background-color: #0055a4; 
-        color: white; 
-        padding: 5px 10px; 
-        border-radius: 5px; 
-        font-weight: bold;
-    }
+    /* Stili Tema (Duplicati da Index per coerenza) */
+    .dark-mode { background-color: #1a1a1a !important; color: #f0f0f0 !important; }
+    .dark-mode .bg-light-blue { background-color: #333 !important; }
+    .dark-mode .navbar-dark.bg-primary { background-color: #003366 !important; }
+    .dark-mode .card, .dark-mode .form-control { background-color: #2b2b2b !important; color: #f0f0f0 !important; border-color: #444; }
+    .dark-mode .text-primary { color: #ffcc00 !important; }
+    .dark-mode .boarding-pass { background: linear-gradient(145deg, #2b2b2b, #1a1a1a) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
+    .dark-mode .comfort-badge { background-color: #ffcc00; color: #1a1a1a; }
+    .comfort-badge { background-color: #0055a4; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; }
+    .status-pending { color: orange; font-weight: bold; }
+    .status-confirmed { color: green; font-weight: bold; }
   </style>
 </head>
-<body>
+<body id="body-main">
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
     <div class="container">
       <a class="navbar-brand fw-bold" href="index.html">VeloxFly™</a>
       <div id="auth-controls" class="d-flex">
-        <div id="user-info" style="display:none;" class="text-white me-3 d-flex align-items-center">
-          <span id="username-display" class="fw-bold me-2"></span>
-          <a href="#" id="logout-button" class="btn btn-sm btn-outline-light">Logout</a>
+         <div class="dropdown me-3">
+            <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span id="current-lang-display">IT</span> / <i class="fas fa-sun" id="theme-icon"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><button class="dropdown-item" id="toggle-theme"><i class="fas fa-moon me-2"></i> Modalità Scura</button></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><button class="dropdown-item lang-switch" data-lang="it">Italiano</button></li>
+                <li><button class="dropdown-item lang-switch" data-lang="en">English</button></li>
+            </ul>
         </div>
-        <a href="#" id="login-button" class="btn btn-sm btn-outline-light">Inicia Sesión</a>
+        <div id="user-info" style="display:none;" class="text-white me-3 d-flex align-items-center">
+            <span id="username-display" class="fw-bold me-2"></span>
+            <a href="profilo.html" id="profile-link" class="btn btn-sm btn-outline-light me-2" data-lang-key="Profile">Profilo</a>
+            <a href="#" id="logout-button" class="btn btn-sm btn-outline-light" data-lang-key="Logout">Logout</a>
+        </div>
+        <a href="#" id="login-button" class="btn btn-sm btn-outline-light" data-lang-key="Login">Accedi</a>
       </div>
     </div>
   </nav>
 
   <main class="container mt-5">
-    <h2 class="text-center mb-4">La Tua Prenotazione Esecutiva (Mis Reservas)</h2>
+    <h2 class="text-center mb-4 text-primary" data-lang-key="DashboardH2">Hub Esecutivo - Le Tue Prenotazioni</h2>
     
-    <div class="boarding-pass p-4">
-        <div class="strip mb-3"></div>
-        <h4 class="mb-3 text-primary"><i class="fas fa-ticket-alt"></i> Carta d'Imbarco Provvisoria</h4>
+    <div id="booking-detail-view" class="d-none">
+        <button id="back-to-list" class="btn btn-outline-secondary mb-3"><i class="fas fa-arrow-left me-2"></i> <span data-lang-key="BackToList">Torna alla Lista</span></button>
+        <div class="alert alert-info text-center" data-lang-key="DetailMessage">Stai visualizzando il dettaglio della tua Carta d'Imbarco.</div>
         
-        <div class="row mb-3">
-            <div class="col-6"><label class="fw-bold">Passeggero:</label><input id="passenger_name_display" class="form-control form-control-plaintext" readonly></div>
-            <div class="col-6"><label class="fw-bold">Codice Prenotazione:</label><input id="booking_code_display" class="form-control form-control-plaintext text-end fw-bold text-danger" readonly></div>
-        </div>
-        
-        <div class="flight-info-box p-3 mb-3 bg-light-blue rounded">
-            <h5 class="text-primary"><i class="fas fa-plane"></i> Volo <span id="flight_number_display" class="fw-bold text-dark">VF101</span></h5>
-            <div class="row">
-                <div class="col-6"><label class="fw-bold">Partenza/Destinazione</label><p class="mb-1"><span id="partenza_display" class="fw-bold"></span> &rarr; <span id="destinazione_display" class="fw-bold"></span></p></div>
-                <div class="col-6 text-end"><label class="fw-bold">Data/Orario</label><p class="mb-1"><span id="data_display"></span> / <span id="departure_time_display">10:45</span></p></div>
+        <div class="boarding-pass p-4">
+            <div class="strip mb-3"></div>
+            <h4 class="mb-3 text-primary"><i class="fas fa-ticket-alt"></i> <span data-lang-key="BoardingPassTitle">Carta d'Imbarco Provvisoria</span></h4>
+            <div class="row mb-3">
+                <div class="col-6"><label class="fw-bold" data-lang-key="PassengerLabel">Passeggero:</label><input id="passenger_name_display" class="form-control form-control-plaintext" readonly></div>
+                <div class="col-6"><label class="fw-bold" data-lang-key="BookingCodeLabel">Codice Prenotazione:</label><input id="booking_code_display" class="form-control form-control-plaintext text-end fw-bold text-danger" readonly></div>
             </div>
-            <hr class="my-2">
-            <div class="row">
-                <div class="col-md-6"><label class="fw-bold">Posto Assegnato</label><p class="h4 text-success" id="seat_number_display">N/A</p></div>
-                <div class="col-md-6 text-end"><label class="fw-bold">Stato Volo</label><p class="h5 text-success" id="flight_status_display">PENDING</p></div>
+            <div class="flight-info-box p-3 mb-3 bg-light-blue rounded">
+                <h5 class="text-primary"><i class="fas fa-plane"></i> <span data-lang-key="FlightLabel">Volo</span> <span id="flight_number_display" class="fw-bold text-dark">VF101</span></h5>
+                 <hr class="my-2">
+                <p class="text-center mb-0"><span class="comfort-badge"><i class="fas fa-rocket me-2"></i> <span data-lang-key="ComfortPromise">Tec. Avanzata: Decollo/Atterraggio **Zero Fastidi**</span></span></p>
             </div>
-            <hr class="my-2">
-            <p class="text-center mb-0"><span class="comfort-badge"><i class="fas fa-rocket me-2"></i> Tec. Avanzata: Decollo/Atterraggio **Zero Fastidi**</span></p>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-6"><label class="fw-bold">Email Contatto:</label><input id="contact_email_display" class="form-control form-control-plaintext" readonly></div>
-            <div class="col-md-6"><div class="qr-placeholder my-3">BARCODE (Pass mobile)</div></div>
+            <button id="conferma-prenotazione" class="btn btn-success w-100 mt-4"><i class="fas fa-check-circle"></i> <span data-lang-key="ConfirmButton">CONFERMA PRENOTAZIONE E INVIA EMAIL</span></button>
         </div>
     </div>
-
-    <div class="card shadow-sm p-4 mt-5 bg-white">
-        <h4 class="mb-3 border-bottom pb-2 text-danger"><i class="fas fa-hand-holding-usd"></i> Riepilogo Costi VeloxFly™ (Trasparente)</h4>
-        <div class="d-flex justify-content-between mb-2">
-            <span>Volo Base Esecutivo:</span>
-            <span id="base-price" class="fw-bold">€ 0.00</span>
-        </div>
-        <div class="d-flex justify-content-between mb-2">
-            <span>Supplemento Bagaglio:</span>
-            <span id="bagaglio-cost" class="fw-bold text-success">€ 0.00</span>
-        </div>
-        <div class="d-flex justify-content-between mb-2">
-            <span>Supplemento Posto:</span>
-            <span id="posto-cost" class="fw-bold text-success">€ 0.00</span>
-        </div>
-        <hr>
-        <div class="d-flex justify-content-between mb-2">
-            <span class="h5">Costo Totale Finale:</span>
-            <span id="total-cost" class="h5 fw-bolder text-primary">€ 0.00</span>
-        </div>
-    </div>
-    <div class="card shadow-sm p-4 mt-5 extra-details">
-        <h4 class="mb-3 border-bottom pb-2">Servizi Aggiuntivi & Logistica (Come Wizz Air)</h4>
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <label class="form-label fw-bold">1. Selezione Bagaglio</label>
-                <select id="selezione_bagaglio" class="form-select">
-                    <option value="Base">Base (Solo Zaino Piccolo)</option>
-                    <option value="Priority">Priority & 10kg Cabina (+€15)</option>
-                    <option value="20kg_Stiva">Bagaglio da Stiva 20kg (+€35)</option>
-                </select>
-            </div>
-            <div class="col-md-6 mb-4">
-                <label class="form-label fw-bold">2. Selezione Posto</label>
-                <select id="selezione_posto" class="form-select">
-                    <option value="Standard">Posto Standard (Gratuito)</option>
-                    <option value="Fila_Emergenza">Posto Fila Emergenza (+€25)</option>
-                    <option value="Prima_Fila">Prima Fila (+€30)</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="mb-3"><label class="form-label fw-bold">Note logistiche (opz.)</label><textarea id="note_logistiche" class="form-control" rows="3" placeholder="Es: check-in ore 15:00"></textarea></div>
+    
+    <div id="booking-list-view">
+        <div class="alert alert-warning" id="no-bookings-message" style="display:none;" data-lang-key="NoBookings">Nessuna prenotazione trovata. Inizia creando un nuovo volo dalla Home.</div>
         
-        <button id="conferma-prenotazione" class="btn btn-success w-100 mt-4"><i class="fas fa-check-circle"></i> CONFERMA PRENOTAZIONE E INVIA EMAIL</button>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th data-lang-key="TableCode">Codice</th>
+                        <th data-lang-key="TablePassenger">Passeggero</th>
+                        <th data-lang-key="TableRoute">Rotta</th>
+                        <th data-lang-key="TableDate">Data</th>
+                        <th data-lang-key="TableStatus">Stato</th>
+                        <th data-lang-key="TableActions">Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="bookings-table-body">
+                    </tbody>
+            </table>
+        </div>
     </div>
   </main>
   
-  <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title" id="authModalLabel">Accesso / Registrazione VeloxFly™</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>Gestisci le tue prenotazioni e il tuo profilo utente.</p>
-          <div class="mb-3"><label for="modalUsername" class="form-label">Nome Utente</label><input type="text" class="form-control" id="modalUsername" placeholder="Inserisci il tuo nome utente" required></div>
-          <div class="mb-3"><label for="modalPassword" class="form-label">Password</label><input type="password" class="form-control" id="modalPassword" value="********" readonly>
-            <div class="form-text text-danger">ATTENZIONE: L'autenticazione è gestita tramite sessione locale (Local Storage), la base per un futuro 2FA.</div>
-          </div>
-          <div class="d-grid gap-2">
-              <button id="modalLoginBtn" type="button" class="btn btn-success">Accedi</button>
-              <button id="modalRegisterBtn" type="button" class="btn btn-outline-primary">Registrati (Crea Sessione)</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="index.js"></script>
   <script src="dashboard.js"></script>
 </body>
 </html>

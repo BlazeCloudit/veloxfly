@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang-key="ProfileTitle">VeloxFly™ - Profilo Utente Esecutivo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Stili Tema (Duplicati per coerenza) */
+        .dark-mode { background-color: #1a1a1a !important; color: #f0f0f0 !important; }
+        .dark-mode .bg-light-blue { background-color: #333 !important; }
+        .dark-mode .navbar-dark.bg-primary { background-color: #003366 !important; }
+        .dark-mode .card, .dark-mode .form-control { background-color: #2b2b2b !important; color: #f0f0f0 !important; border-color: #444; }
+        .dark-mode .text-primary { color: #ffcc00 !important; }
+        .nav-tabs .nav-link { font-weight: bold; }
+        .nav-tabs .nav-link.active { background-color: #0055a4; color: white; border-color: #0055a4; }
+        .dark-mode .nav-tabs .nav-link.active { background-color: #ffcc00; color: black; border-color: #ffcc00; }
+    </style>
+</head>
+<body id="body-main">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">VeloxFly™</a>
+            <div id="auth-controls" class="d-flex">
+                <div class="dropdown me-3">
+                    <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span id="current-lang-display">IT</span> / <i class="fas fa-sun" id="theme-icon"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button class="dropdown-item" id="toggle-theme"><i class="fas fa-moon me-2"></i> Modalità Scura</button></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><button class="dropdown-item lang-switch" data-lang="it">Italiano</button></li>
+                        <li><button class="dropdown-item lang-switch" data-lang="en">English</button></li>
+                    </ul>
+                </div>
+                <div id="user-info" style="display:none;" class="text-white me-3 d-flex align-items-center">
+                    <span id="username-display" class="fw-bold me-2"></span>
+                    <a href="profilo.html" id="profile-link" class="btn btn-sm btn-outline-light me-2" data-lang-key="Profile">Profilo</a>
+                    <a href="#" id="logout-button" class="btn btn-sm btn-outline-light" data-lang-key="Logout">Logout</a>
+                </div>
+                <a href="#" id="login-button" class="btn btn-sm btn-outline-light" data-lang-key="Login">Accedi</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-5">
+        <h2 class="text-center mb-4 text-primary" data-lang-key="ProfileH2">Gestione Profilo Esecutivo</h2>
+        
+        <ul class="nav nav-tabs justify-content-center mb-4" id="profileTabs" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#userData" type="button" data-lang-key="TabUserData"><i class="fas fa-user"></i> Dati Utente</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#billing" type="button" data-lang-key="TabBilling"><i class="fas fa-credit-card"></i> Billing & Pagamenti</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#preferences" type="button" data-lang-key="TabPreferences"><i class="fas fa-cog"></i> Preferenze</button></li>
+        </ul>
+
+        <div class="tab-content" id="profileTabsContent">
+            <div class="tab-pane fade show active p-4 card" id="userData" role="tabpanel">
+                <h4 data-lang-key="UserDataTitle">Informazioni Personali</h4>
+                <div class="mb-3"><label class="form-label" data-lang-key="Username">Nome Utente:</label><input id="user-display" class="form-control" readonly></div>
+                <div class="mb-3"><label class="form-label" data-lang-key="UserEmail">Email di Registrazione:</label><input value="utente.velox@executive.com" class="form-control" readonly></div>
+                <button class="btn btn-primary" data-lang-key="UpdateDataBtn">Aggiorna Dati (Mock)</button>
+            </div>
+
+            <div class="tab-pane fade p-4 card" id="billing" role="tabpanel">
+                <h4 data-lang-key="BillingTitle">Metodi di Pagamento</h4>
+                <div class="alert alert-info" data-lang-key="BillingDesc">Gestione delle tue fatture esecutive e dei metodi di pagamento salvati.</div>
+                
+                <div class="mb-3"><label class="form-label" data-lang-key="CardNumber">Numero Carta (Mock):</label><input value="**** **** **** 4242" class="form-control" readonly></div>
+                <div class="mb-3"><label class="form-label" data-lang-key="CardExp">Scadenza:</label><input value="12/28" class="form-control" readonly></div>
+                
+                <button class="btn btn-success me-2" data-lang-key="AddCardBtn">Aggiungi Nuova Carta (Mock)</button>
+                <button class="btn btn-danger" data-lang-key="ViewInvoicesBtn">Visualizza Fatture (Mock)</button>
+            </div>
+
+            <div class="tab-pane fade p-4 card" id="preferences" role="tabpanel">
+                <h4 data-lang-key="PreferencesTitle">Impostazioni Applicazione</h4>
+                <div class="mb-4">
+                    <label class="form-label fw-bold" data-lang-key="ThemeSetting">Tema Grafico</label>
+                    <button id="toggle-theme-pref" class="btn btn-outline-secondary w-100" data-lang-key="ThemeDark"><i class="fas fa-moon me-2"></i> Modalità Scura</button>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold" data-lang-key="LanguageSetting">Lingua Predefinita</label>
+                    <select id="language-select-pref" class="form-select">
+                        <option value="it" data-lang-key="LangIT">Italiano</option>
+                        <option value="en" data-lang-key="LangEN">English</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="profilo.js"></script>
+</body>
+</html>
