@@ -4,7 +4,6 @@ import { getFirestore, collection, addDoc } from "https://www.gstatic.com/fireba
 // =================================================================================
 // --- CONFIGURAZIONE FIREBASE ---
 // =================================================================================
-// NOTA: Utilizza la configurazione già esistente
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDFxsqBBGCtRQ_nkSlOvSZNGnxloqeZEto", 
     authDomain: "veloxfly-logistica.firebaseapp.com",
@@ -18,11 +17,9 @@ const app = initializeApp(FIREBASE_CONFIG);
 const db = getFirestore(app);
 
 // === RIFERIMENTI UI (ASSUMENDO GLI ID STANDARD DEL MODULO) ===
-// DEVI ASSICURARTI CHE QUESTI ID SIANO ESATTAMENTE GLI STESSI NEL TUO index.html
 const formPrenotazione = document.getElementById('form-prenotazione');
 const inputNome = document.getElementById('nome_passeggero');
 const inputEmail = document.getElementById('email_contatto');
-// I campi qui sotto ora prenderanno il valore testuale inserito dall'utente
 const inputPartenza = document.getElementById('partenza');
 const inputDestinazione = document.getElementById('destinazione');
 const inputData = document.getElementById('data_viaggio');
@@ -35,36 +32,34 @@ if (formPrenotazione) {
         // CRITICO: Impedisce il ricaricamento della pagina e permette a JS di agire
         e.preventDefault(); 
         
-        // Ottieni il pulsante e disabilitalo
         const btnPrenota = formPrenotazione.querySelector('button[type="submit"]');
         if (btnPrenota) {
             btnPrenota.disabled = true;
             btnPrenota.textContent = "Prenotazione in corso...";
         }
 
-        // Estrai i valori testuali completi
-        const partenzaValue = inputPartenza.value;
-        const destinazioneValue = inputDestinazione.value;
-        
-        // Controlla che i campi essenziali non siano vuoti (validazione di base)
-        if (!inputNome.value || !inputEmail.value || !partenzaValue || !destinazioneValue || !inputData.value) {
-            alert("Per favore, compila tutti i campi obbligatori.");
+        // --- CONTROLLO DI SICUREZZA PER GLI INPUT (AGGIUNTO) ---
+        // Se un campo non è presente in index.html, il codice fallisce qui
+        if (!inputPartenza || !inputDestinazione || !inputNome || !inputEmail || !inputData) {
+            console.error("ERRORE: Uno o più ID HTML non sono stati trovati nel DOM. Controlla index.html.");
+            alert("Errore di configurazione! Controlla la console (F12) e l'HTML.");
              if (btnPrenota) {
                 btnPrenota.disabled = false;
                 btnPrenota.textContent = "Prenota ora";
             }
             return;
         }
+        // --------------------------------------------------------
 
         const nuovaPrenotazione = {
             passenger_name: inputNome.value,
             contact_email: inputEmail.value,
             // Uso i nomi delle città completi
-            partenza: partenzaValue,
-            destinazione: destinazioneValue,
+            partenza: inputPartenza.value,
+            destinazione: inputDestinazione.value,
             data: inputData.value,
             stato: "PENDING",
-            // Campi inizializzati
+            // Campi inizializzati per dashboard.js
             hotel_scelto: "",
             noleggio_richiesto: "",
             note_logistiche: "",
@@ -78,12 +73,12 @@ if (formPrenotazione) {
             // Salva l'ID nel browser (necessario per prenotazione.html)
             localStorage.setItem('prenotazione_id', docRef.id);
             
-            // Reindirizza alla pagina di configurazione (CRITICO)
+            // Reindirizza alla pagina di configurazione (DEVE FUNZIONARE)
             window.location.href = "prenotazione.html"; 
 
         } catch(err) {
             console.error("ERRORE CRITICO SALVATAGGIO FIRESTORE:", err);
-            alert("Errore durante la prenotazione. Controlla la console per i dettagli.");
+            alert("Errore grave durante la prenotazione. Controlla la console.");
             
             if (btnPrenota) {
                 btnPrenota.disabled = false;
@@ -92,6 +87,6 @@ if (formPrenotazione) {
         }
     });
 } else {
-    // Questo è il messaggio di errore se l'ID 'form-prenotazione' non è in index.html
-    console.error("Elemento 'form-prenotazione' non trovato in index.html! IL CODICE NON PUÒ AVVIARE LA PRENOTAZIONE.");
+    // Se fallisce qui, l'ID 'form-prenotazione' non è presente in index.html
+    console.error("Elemento 'form-prenotazione' non trovato in index.html! Controlla l'HTML.");
 }
