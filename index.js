@@ -1,4 +1,4 @@
-// === RIFERIMENTI UI PRINCIPALI ===
+// === RIFERIMENTI UI ===
 const formPrenotazione = document.getElementById('flight-form'); 
 const inputNome = document.getElementById('passenger_name');
 const inputEmail = document.getElementById('contact_email');
@@ -7,13 +7,13 @@ const inputDestinazione = document.getElementById('destinazione');
 const inputData = document.getElementById('data');
 const rotteList = document.getElementById('rotte-list'); 
 
-// === RIFERIMENTI UI AUTENTICAZIONE (Navbar) ===
+// === RIFERIMENTI UI AUTENTICAZIONE (Navbar e Modal) ===
 const loginBtn = document.getElementById('login-button');
 const logoutBtn = document.getElementById('logout-button');
 const userInfo = document.getElementById('user-info');
 const usernameDisplay = document.getElementById('username-display');
+const myReservationsLink = document.getElementById('my-reservations-link');
 
-// === RIFERIMENTI MODAL DI ACCESSO ===
 const authModalEl = document.getElementById('authModal');
 const authModal = authModalEl ? new bootstrap.Modal(authModalEl) : null;
 const modalUsernameInput = document.getElementById('modalUsername');
@@ -41,14 +41,14 @@ if (rotteList) {
     });
 }
 
-// === FUNZIONE ID LOCALE ===
+// === FUNZIONE ID LOCALE (Genera una chiave unica per la sessione) ===
 function generateLocalId() {
     const now = new Date();
     const ms = String(now.getTime()).slice(-6); 
     return `LOCAL-${ms}`;
 }
 
-// === LOGICA DI SALVATAGGIO LOCALE E REINDIRIZZAMENTO ===
+// === LOGICA DI SALVATAGGIO LOCALE E REINDIRIZZAMENTO (FIX 422) ===
 if (formPrenotazione) {
     formPrenotazione.addEventListener('submit', (e) => {
         e.preventDefault(); 
@@ -67,25 +67,26 @@ if (formPrenotazione) {
             codice_prenotazione: "" 
         };
 
-        // CONTROLLO DI ROBUSTEZZA DELL'EMAIL (FIX 422)
+        // CONTROLLO DI ROBUSTEZZA DELL'EMAIL
         if (!datiSimulati.contact_email || datiSimulati.contact_email.indexOf('@') === -1) {
-            alert("ATTENZIONE: Inserisci un'email di contatto valida. Operazione annullata.");
+            alert("ATTENZIONE: Inserisci un'email di contatto valida per creare la prenotazione.");
             btnPrenota.disabled = false;
             btnPrenota.textContent = "Crea Prenotazione";
             return;
         }
 
-        // Salva ID e Dati
+        // 1. Genera un ID
         const localId = generateLocalId();
-        localStorage.setItem('prenotazione_id', localId);
+        
+        // 2. Salva la prenotazione nella memoria del browser
         localStorage.setItem(`prenotazione_${localId}`, JSON.stringify(datiSimulati));
         
-        // Reindirizzamento
-        window.location.href = "prenotazione.html"; 
+        // 3. Reindirizzamento SICURO passando l'ID nell'URL (FIX 422)
+        window.location.href = `dashboard.html?id=${localId}`; 
     });
 }
 
-// === LOGICA DI AUTENTICAZIONE (Gestione Sessione Professionale) ===
+// === LOGICA DI AUTENTICAZIONE (Gestione Sessione) ===
 function checkAuthStatus() {
     const loggedInUser = localStorage.getItem('current_user');
     if (loggedInUser) {
@@ -98,7 +99,6 @@ function checkAuthStatus() {
     }
 }
 
-// Logica per il pulsante del Modal
 function handleAuth(e) {
     e.preventDefault();
     const username = modalUsernameInput.value.trim();
@@ -106,30 +106,34 @@ function handleAuth(e) {
         localStorage.setItem('current_user', username);
         checkAuthStatus();
         if (authModal) authModal.hide();
-        modalUsernameInput.value = ''; // Pulisci il campo
+        modalUsernameInput.value = ''; 
+        alert(`Accesso Riuscito: Benvenuto, ${username}! (Sessione Locale)`);
     } else {
         alert("Inserisci un nome utente per accedere alla tua sessione.");
     }
 }
 
-// Listener: Mostra il Modal
-if (loginBtn && authModal) {
-    loginBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        authModal.show();
-    });
-}
-
-// Listener: Azioni nel Modal
+if (loginBtn && authModal) loginBtn.addEventListener('click', (e) => { e.preventDefault(); authModal.show(); });
 if (modalLoginBtn) modalLoginBtn.addEventListener('click', handleAuth);
 if (modalRegisterBtn) modalRegisterBtn.addEventListener('click', handleAuth);
+if (logoutBtn) logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    localStorage.removeItem('current_user');
+    checkAuthStatus();
+    alert("Logout Effettuato.");
+});
 
-// Listener: Logout
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', (e) => {
+// Mis Reservas: cerca l'ultima prenotazione e usa l'ID nell'URL
+if (myReservationsLink) {
+    myReservationsLink.addEventListener('click', (e) => {
         e.preventDefault();
-        localStorage.removeItem('current_user');
-        checkAuthStatus();
+        // L'ultima prenotazione salvata dal dashboard.js è quella da mostrare
+        const lastId = localStorage.getItem('last_booking_id'); 
+        if (lastId) {
+            window.location.href = `dashboard.html?id=${lastId}`;
+        } else {
+            alert("Nessuna prenotazione recente trovata nel browser. Per favore, crea una nuova prenotazione.");
+        }
     });
 }
 
