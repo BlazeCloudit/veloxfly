@@ -1,56 +1,90 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VeloxFly™ - Prenotazioni interne</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style-base.css">
-</head>
-<body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="#">VeloxFly™</a>
-    </div>
-  </nav>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-  <main class="container mt-5">
-    <h1 class="text-center mb-4">VeloxFly™ - Prenotazione Viaggio Esecutivo</h1>
-    <form id="flight-form" class="p-4 bg-white rounded shadow-sm">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Nome Passeggero</label>
-          <input type="text" id="passenger_name" class="form-control" placeholder="Mario Rossi" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Email di contatto</label>
-          <input type="email" id="contact_email" class="form-control" placeholder="mario@example.com" required>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Partenza (Rotta VeloxFly)</label>
-          <input type="text" id="partenza" class="form-control" list="rotte-list" placeholder="Esempio: VXF-ROM" required>
-          <datalist id="rotte-list"></datalist>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Destinazione (Rotta VeloxFly)</label>
-          <input type="text" id="destinazione" class="form-control" list="rotte-list" placeholder="Esempio: VXF-MIL" required>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Data del volo</label>
-          <input type="date" id="data" class="form-control" required>
-        </div>
-      </div>
-      <div class="text-center mt-4">
-        <button type="submit" class="btn btn-primary btn-lg">Crea Prenotazione (DRAFT)</button>
-      </div>
-    </form>
-  </main>
+// =================================================================================
+// --- CONFIGURAZIONE FIREBASE ---
+// =================================================================================
+const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDFxsqBBGCtRQ_nkSlOvSZNGnxloqeZEto", 
+    authDomain: "veloxfly-logistica.firebaseapp.com",
+    projectId: "veloxfly-logistica",
+    storageBucket: "veloxfly-logistica.firebasestorage.app",
+    messagingSenderId: "308781988721", 
+    appId: "1:308781988721:web:14555f6fa1afc4d73954d0"
+};
 
-  <footer class="text-center mt-5 mb-4">
-    <small class="text-muted">VeloxFly™ — "Voliamo dove gli altri si fermano. Logistica Esecutiva Veloce. ✈️💼🌐✅"</small>
-  </footer>
+const app = initializeApp(FIREBASE_CONFIG);
+const db = getFirestore(app);
 
-  <script type="module" src="main.js"></script>
-</body>
-</html>
-  
+// === RIFERIMENTI UI (AGGIORNATI PER CORRISPONDERE A index.html) ===
+// NOTA BENE: Ho cambiato gli ID qui sotto per matchare il tuo HTML!
+const formPrenotazione = document.getElementById('flight-form'); // Corretto da 'form-prenotazione'
+const inputNome = document.getElementById('passenger_name');    // Corretto da 'nome_passeggero'
+const inputEmail = document.getElementById('contact_email');    // Corretto da 'email_contatto'
+const inputPartenza = document.getElementById('partenza');
+const inputDestinazione = document.getElementById('destinazione');
+const inputData = document.getElementById('data');              // Corretto da 'data_viaggio'
+
+
+// === LOGICA DI SALVATAGGIO E REINDIRIZZAMENTO ===
+if (formPrenotazione) {
+    formPrenotazione.addEventListener('submit', async (e) => {
+        
+        // CRITICO: Impedisce il ricaricamento della pagina 
+        e.preventDefault(); 
+        
+        const btnPrenota = formPrenotazione.querySelector('button[type="submit"]');
+        if (btnPrenota) {
+            btnPrenota.disabled = true;
+            btnPrenota.textContent = "Prenotazione in corso...";
+        }
+
+        // CONTROLLO DI SICUREZZA
+        if (!inputPartenza || !inputDestinazione || !inputNome || !inputEmail || !inputData) {
+            console.error("ERRORE CRITICO: Uno o più ID HTML sono mancanti. Impossibile leggere i dati.");
+            alert("Errore interno di configurazione. Controlla la console (F12).");
+            if (btnPrenota) {
+                btnPrenota.disabled = false;
+                btnPrenota.textContent = "Crea Prenotazione (DRAFT)";
+            }
+            return;
+        }
+
+        const nuovaPrenotazione = {
+            // Mappa i valori degli input
+            passenger_name: inputNome.value,
+            contact_email: inputEmail.value,
+            partenza: inputPartenza.value,
+            destinazione: inputDestinazione.value,
+            data: inputData.value,
+            stato: "PENDING",
+            // Campi inizializzati per dashboard.js
+            hotel_scelto: "",
+            noleggio_richiesto: "",
+            note_logistiche: "",
+            codice_prenotazione: "N/A"
+        };
+
+        try {
+            // Salva il documento su Firestore
+            const docRef = await addDoc(collection(db, "velox_prenotazioni"), nuovaPrenotazione);
+
+            // Salva l'ID nel browser (necessario per prenotazione.html)
+            localStorage.setItem('prenotazione_id', docRef.id);
+            
+            // Reindirizza alla pagina di configurazione 
+            window.location.href = "prenotazione.html"; 
+
+        } catch(err) {
+            console.error("ERRORE CRITICO SALVATAGGIO FIRESTORE:", err);
+            alert("Errore grave durante la prenotazione. Controlla la console.");
+            
+            if (btnPrenota) {
+                btnPrenota.disabled = false;
+                btnPrenota.textContent = "Crea Prenotazione (DRAFT)";
+            }
+        }
+    });
+} else {
+    console.error("Elemento 'flight-form' non trovato in index.html! IL CODICE NON PUÒ AVVIARE LA PRENOTAZIONE.");
+}
