@@ -16,20 +16,20 @@ const FIREBASE_CONFIG = {
 const app = initializeApp(FIREBASE_CONFIG);
 const db = getFirestore(app);
 
-// === RIFERIMENTI UI (ASSUMENDO GLI ID STANDARD DEL MODULO) ===
-const formPrenotazione = document.getElementById('form-prenotazione');
-const inputNome = document.getElementById('nome_passeggero');
-const inputEmail = document.getElementById('email_contatto');
+// === RIFERIMENTI UI: GLI ID CORRISPONDONO AL TUO index.html ===
+const formPrenotazione = document.getElementById('flight-form');    // ID del form
+const inputNome = document.getElementById('passenger_name');        // ID del nome
+const inputEmail = document.getElementById('contact_email');        // ID dell'email
 const inputPartenza = document.getElementById('partenza');
 const inputDestinazione = document.getElementById('destinazione');
-const inputData = document.getElementById('data_viaggio');
+const inputData = document.getElementById('data');                  // ID della data
 
 
 // === LOGICA DI SALVATAGGIO E REINDIRIZZAMENTO ===
 if (formPrenotazione) {
     formPrenotazione.addEventListener('submit', async (e) => {
         
-        // CRITICO: Impedisce il ricaricamento della pagina e permette a JS di agire
+        // CRITICO: Blocca il re-invio standard della pagina
         e.preventDefault(); 
         
         const btnPrenota = formPrenotazione.querySelector('button[type="submit"]');
@@ -38,28 +38,27 @@ if (formPrenotazione) {
             btnPrenota.textContent = "Prenotazione in corso...";
         }
 
-        // --- CONTROLLO DI SICUREZZA PER GLI INPUT (AGGIUNTO) ---
-        // Se un campo non è presente in index.html, il codice fallisce qui
+        // --- CONTROLLO DI SICUREZZA INPUT ---
         if (!inputPartenza || !inputDestinazione || !inputNome || !inputEmail || !inputData) {
-            console.error("ERRORE: Uno o più ID HTML non sono stati trovati nel DOM. Controlla index.html.");
-            alert("Errore di configurazione! Controlla la console (F12) e l'HTML.");
-             if (btnPrenota) {
+            console.error("ERRORE CRITICO: Uno o più ID HTML sono mancanti.");
+            alert("Errore interno: controlla la console (F12) per l'errore di riferimento ID.");
+            if (btnPrenota) {
                 btnPrenota.disabled = false;
-                btnPrenota.textContent = "Prenota ora";
+                btnPrenota.textContent = "Crea Prenotazione (DRAFT)";
             }
             return;
         }
-        // --------------------------------------------------------
+        // ------------------------------------
 
         const nuovaPrenotazione = {
+            // Usa i valori completi inseriti dall'utente (es. "Reggio Calabria")
             passenger_name: inputNome.value,
             contact_email: inputEmail.value,
-            // Uso i nomi delle città completi
             partenza: inputPartenza.value,
             destinazione: inputDestinazione.value,
             data: inputData.value,
             stato: "PENDING",
-            // Campi inizializzati per dashboard.js
+            // Campi inizializzati per la pagina di conferma
             hotel_scelto: "",
             noleggio_richiesto: "",
             note_logistiche: "",
@@ -67,26 +66,26 @@ if (formPrenotazione) {
         };
 
         try {
-            // Salva il documento su Firestore
+            // 1. Salva il documento su Firestore
             const docRef = await addDoc(collection(db, "velox_prenotazioni"), nuovaPrenotazione);
 
-            // Salva l'ID nel browser (necessario per prenotazione.html)
+            // 2. Salva l'ID nel browser (CRITICO per la pagina successiva)
             localStorage.setItem('prenotazione_id', docRef.id);
             
-            // Reindirizza alla pagina di configurazione (DEVE FUNZIONARE)
+            // 3. Reindirizza alla pagina di configurazione
             window.location.href = "prenotazione.html"; 
 
         } catch(err) {
             console.error("ERRORE CRITICO SALVATAGGIO FIRESTORE:", err);
-            alert("Errore grave durante la prenotazione. Controlla la console.");
+            alert("Errore grave: Impossibile salvare la prenotazione. Controlla la console.");
             
             if (btnPrenota) {
                 btnPrenota.disabled = false;
-                btnPrenota.textContent = "Prenota ora";
+                btnPrenota.textContent = "Crea Prenotazione (DRAFT)";
             }
         }
     });
 } else {
-    // Se fallisce qui, l'ID 'form-prenotazione' non è presente in index.html
-    console.error("Elemento 'form-prenotazione' non trovato in index.html! Controlla l'HTML.");
+    // Messaggio che appare solo se l'ID del form è sbagliato (ma ora sappiamo che è 'flight-form')
+    console.error("Elemento 'flight-form' non trovato in index.html! La logica non è stata avviata.");
 }
