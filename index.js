@@ -7,6 +7,12 @@ const inputDestinazione = document.getElementById('destinazione');
 const inputData = document.getElementById('data');
 const rotteList = document.getElementById('rotte-list'); 
 
+// === RIFERIMENTI UI AUTENTICAZIONE (Nuovi) ===
+const loginBtn = document.getElementById('login-button');
+const logoutBtn = document.getElementById('logout-button');
+const userInfo = document.getElementById('user-info');
+const usernameDisplay = document.getElementById('username-display');
+
 // === POPOLAMENTO ROTTE ESTESO ===
 const rotteDisponibili = [
     "Milano Linate (LIN)", "Roma Fiumicino (FCO)", "Torino Caselle (TRN)", 
@@ -63,3 +69,42 @@ if (formPrenotazione) {
         window.location.href = "prenotazione.html"; 
     });
 }
+
+// === LOGICA DI AUTENTICAZIONE SEMPLIFICATA (Local Storage) ===
+function checkAuthStatus() {
+    const loggedInUser = localStorage.getItem('current_user');
+    if (loggedInUser) {
+        // Utente loggato
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (userInfo) userInfo.style.display = 'flex'; // Usiamo flex per allineamento
+        if (usernameDisplay) usernameDisplay.textContent = loggedInUser;
+    } else {
+        // Utente non loggato
+        if (loginBtn) loginBtn.style.display = 'block';
+        if (userInfo) userInfo.style.display = 'none';
+    }
+}
+
+// SIMULAZIONE LOGIN/REGISTRAZIONE
+if (loginBtn) {
+    loginBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const username = prompt("Simulazione: Inserisci il tuo nome utente per accedere:");
+        if (username) {
+            localStorage.setItem('current_user', username);
+            checkAuthStatus();
+        }
+    });
+}
+
+// FUNZIONE LOGOUT
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('current_user');
+        checkAuthStatus();
+    });
+}
+
+// Esegui al caricamento della pagina (Importante per tutte le pagine che lo includono)
+checkAuthStatus();  

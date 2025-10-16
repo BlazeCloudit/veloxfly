@@ -9,7 +9,15 @@
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="#">VeloxFly™</a>
+      <a class="navbar-brand fw-bold" href="index.html">VeloxFly™</a>
+      <div id="auth-controls" class="d-flex">
+        <div id="user-info" style="display:none;" class="text-white me-3 d-flex align-items-center">
+          Benvenuto, <span id="username-display" class="fw-bold ms-1"></span>!
+          <a href="#" id="settings-link" class="text-white ms-2">Settings</a>
+          <a href="#" id="logout-button" class="text-white ms-2">Logout</a>
+        </div>
+        <a href="#" id="login-button" class="btn btn-sm btn-outline-light">Login / Registrati</a>
+      </div>
     </div>
   </nav>
 
