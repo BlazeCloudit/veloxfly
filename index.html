@@ -1,55 +1,54 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VeloxFly™ - Prenotazioni interne</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style-base.css">
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeloxFly™ - Prenotazioni interne</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style-base.css"> </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="#">VeloxFly™</a>
-    </div>
-  </nav>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">VeloxFly™</a>
+    </div>
+  </nav>
 
-  <main class="container mt-5">
-    <h1 class="text-center mb-4">VeloxFly™ - Prenotazione Viaggio Esecutivo</h1>
-    <form id="flight-form" class="p-4 bg-white rounded shadow-sm">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Nome Passeggero</label>
-          <input type="text" id="passenger_name" class="form-control" placeholder="Mario Rossi" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Email di contatto</label>
-          <input type="email" id="contact_email" class="form-control" placeholder="mario@example.com" required>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Partenza (Rotta VeloxFly)</label>
-          <input type="text" id="partenza" class="form-control" list="rotte-list" placeholder="Esempio: Milano" required>
-          <datalist id="rotte-list"></datalist>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Destinazione (Rotta VeloxFly)</label>
-          <input type="text" id="destinazione" class="form-control" list="rotte-list" placeholder="Esempio: Roma" required>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Data del volo</label>
-          <input type="date" id="data" class="form-control" required>
-        </div>
-      </div>
-      <div class="text-center mt-4">
-        <button type="submit" class="btn btn-primary btn-lg">Crea Prenotazione (DRAFT)</button>
-      </div>
-    </form>
-  </main>
+  <main class="container mt-5">
+    <h1 class="text-center mb-4">VeloxFly™ - Prenotazione Viaggio Esecutivo</h1>
+    <form id="flight-form" class="p-4 bg-white rounded shadow-sm">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Nome Passeggero</label>
+          <input type="text" id="passenger_name" class="form-control" placeholder="Mario Rossi" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email di contatto</label>
+          <input type="email" id="contact_email" class="form-control" placeholder="mario@example.com" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Partenza (Rotta VeloxFly)</label>
+          <input type="text" id="partenza" class="form-control" list="rotte-list" placeholder="Esempio: Milano Linate" required>
+          <datalist id="rotte-list"></datalist>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Destinazione (Rotta VeloxFly)</label>
+          <input type="text" id="destinazione" class="form-control" list="rotte-list" placeholder="Esempio: Roma Fiumicino" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Data del volo</label>
+          <input type="date" id="data" class="form-control" required>
+        </div>
+      </div>
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary btn-lg">Crea Prenotazione (DRAFT)</button>
+      </div>
+    </form>
+  </main>
 
-  <footer class="text-center mt-5 mb-4">
-    <small class="text-muted">VeloxFly™ — "Voliamo dove gli altri si fermano. Logistica Esecutiva Veloce. ✈️💼🌐✅"</small>
-  </footer>
+  <footer class="text-center mt-5 mb-4">
+    <small class="text-muted">VeloxFly™ — "Voliamo dove gli altri si fermano. Logistica Esecutiva Veloce. ✈️💼🌐✅"</small>
+  </footer>
 
-    <script type="module" src="index.js"></script>
+  <script type="module" src="index.js"></script>
 </body>
 </html>

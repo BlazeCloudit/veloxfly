@@ -1,9 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-// =================================================================================
-// --- CONFIGURAZIONE FIREBASE ---
-// =================================================================================
+// === CONFIGURAZIONE FIREBASE ===
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDFxsqBBGCtRQ_nkSlOvSZNGnxloqeZEto", 
     authDomain: "veloxfly-logistica.firebaseapp.com",
@@ -16,20 +14,34 @@ const FIREBASE_CONFIG = {
 const app = initializeApp(FIREBASE_CONFIG);
 const db = getFirestore(app);
 
-// === RIFERIMENTI UI: GLI ID CORRISPONDONO AL TUO index.html ===
-const formPrenotazione = document.getElementById('flight-form');    // ID del form
-const inputNome = document.getElementById('passenger_name');        // ID del nome
-const inputEmail = document.getElementById('contact_email');        // ID dell'email
+// === RIFERIMENTI UI (MATCHANO index.html) ===
+const formPrenotazione = document.getElementById('flight-form');
+const inputNome = document.getElementById('passenger_name');
+const inputEmail = document.getElementById('contact_email');
 const inputPartenza = document.getElementById('partenza');
 const inputDestinazione = document.getElementById('destinazione');
-const inputData = document.getElementById('data');                  // ID della data
+const inputData = document.getElementById('data');
+const rotteList = document.getElementById('rotte-list'); 
 
+// === LOGICA AGGIUNTA: POPOLAMENTO ROTTE ===
+const rotteDisponibili = [
+    "Milano Linate (LIN)", "Roma Fiumicino (FCO)", "Torino Caselle (TRN)", 
+    "Venezia Tessera (VCE)", "Napoli Capodichino (NAP)", "Bari Palese (BRI)", 
+    "Palermo Falcone Borsellino (PMO)", "Catania Fontanarossa (CTA)", 
+    "Reggio Calabria (REG)", "Genova Sestri (GOA)"
+];
+
+if (rotteList) {
+    rotteDisponibili.forEach(rotta => {
+        const option = document.createElement('option');
+        option.value = rotta;
+        rotteList.appendChild(option);
+    });
+}
 
 // === LOGICA DI SALVATAGGIO E REINDIRIZZAMENTO ===
 if (formPrenotazione) {
     formPrenotazione.addEventListener('submit', async (e) => {
-        
-        // CRITICO: Blocca il re-invio standard della pagina
         e.preventDefault(); 
         
         const btnPrenota = formPrenotazione.querySelector('button[type="submit"]');
@@ -38,10 +50,9 @@ if (formPrenotazione) {
             btnPrenota.textContent = "Prenotazione in corso...";
         }
 
-        // --- CONTROLLO DI SICUREZZA INPUT ---
-        if (!inputPartenza || !inputDestinazione || !inputNome || !inputEmail || !inputData) {
-            console.error("ERRORE CRITICO: Uno o più ID HTML sono mancanti.");
-            alert("Errore interno: controlla la console (F12) per l'errore di riferimento ID.");
+        // --- CONTROLLO DI VALIDAZIONE BASE ---
+        if (!inputPartenza.value || !inputDestinazione.value || !inputNome.value || !inputEmail.value || !inputData.value) {
+            alert("Per favore, compila tutti i campi obbligatori.");
             if (btnPrenota) {
                 btnPrenota.disabled = false;
                 btnPrenota.textContent = "Crea Prenotazione (DRAFT)";
@@ -51,14 +62,12 @@ if (formPrenotazione) {
         // ------------------------------------
 
         const nuovaPrenotazione = {
-            // Usa i valori completi inseriti dall'utente (es. "Reggio Calabria")
             passenger_name: inputNome.value,
             contact_email: inputEmail.value,
             partenza: inputPartenza.value,
             destinazione: inputDestinazione.value,
             data: inputData.value,
             stato: "PENDING",
-            // Campi inizializzati per la pagina di conferma
             hotel_scelto: "",
             noleggio_richiesto: "",
             note_logistiche: "",
@@ -66,13 +75,10 @@ if (formPrenotazione) {
         };
 
         try {
-            // 1. Salva il documento su Firestore
             const docRef = await addDoc(collection(db, "velox_prenotazioni"), nuovaPrenotazione);
-
-            // 2. Salva l'ID nel browser (CRITICO per la pagina successiva)
             localStorage.setItem('prenotazione_id', docRef.id);
             
-            // 3. Reindirizza alla pagina di configurazione
+            // Reindirizzamento critico
             window.location.href = "prenotazione.html"; 
 
         } catch(err) {
@@ -85,7 +91,4 @@ if (formPrenotazione) {
             }
         }
     });
-} else {
-    // Messaggio che appare solo se l'ID del form è sbagliato (ma ora sappiamo che è 'flight-form')
-    console.error("Elemento 'flight-form' non trovato in index.html! La logica non è stata avviata.");
 }
